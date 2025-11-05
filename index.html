@@ -192,7 +192,9 @@
               onClick={()=>document.getElementById('fileInput').click()}
               style={{cursor:'pointer'}}
             >
-              <img className="w-full h-[420px] object-cover" src="https://placehold.co/1000x700/f3e8ff/6d28d9?text=T-shirt+mockup" alt="mockup"/>
+             <img className="w-full h-[420px] object-cover"
+     src="./assets/mockups/tshirt-mockup.png"
+     alt="mockup"/>
               {src && (
                 <div ref={logoRef} className="overlay-logo draggable" style={{transform:`translate(-50%,-50%) scale(${scale})`}}>
                   <img src={src} alt="logo"/>
@@ -332,11 +334,11 @@
                 </div>
                 <div className="space-y-8">
                   {[
-                    {title:'Футболка', img:'https://placehold.co/900x600/f3e8ff/6d28d9?text=T-shirt+mockup'},
-                    {title:'Чехол',    img:'https://placehold.co/900x600/e0f2fe/075985?text=Phone+case'},
-                    {title:'Кружка',   img:'https://placehold.co/900x600/ffe4e6/9f1239?text=Mug'},
-                    {title:'Постер',   img:'https://placehold.co/900x600/fef9c3/854d0e?text=Poster'},
-                  ].map((s,i)=>(
+  {title:'Футболка', img:'./assets/mockups/tshirt.png'},
+  {title:'Чехол',    img:'./assets/mockups/phone-case.png'},
+  {title:'Кружка',   img:'./assets/mockups/mug.png'},
+  {title:'Постер',   img:'./assets/mockups/poster.png'},
+].map((s,i)=>(
                     <div key={i} className="reveal bg-gray-50 rounded-2xl overflow-hidden shadow">
                       <img className="w-full h-[420px] object-cover" src={s.img} alt={s.title}/>
                       <div className="p-5"><h3 className="text-xl font-semibold text-purple-900">{s.title}</h3></div>
