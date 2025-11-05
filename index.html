@@ -20,26 +20,36 @@
       }
     </script>
 
-    <!-- React 18 + ReactDOM (UMD) -->
+    <!-- React 18 + ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-
-    <!-- Framer Motion (UMD) — ВАЖНО: фиксированная версия -->
-    <script src="https://unpkg.com/framer-motion@11.0.3/dist/framer-motion.umd.js"></script>
 
     <!-- Babel для JSX -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <style>html,body,#root{height:100%}</style>
+    <style>
+      html,body,#root{height:100%}
+      .reveal{opacity:0; transform:translateY(20px); transition:opacity .6s, transform .6s}
+      .reveal.show{opacity:1; transform:translateY(0)}
+    </style>
   </head>
   <body class="bg-white">
     <div id="root"></div>
 
-    <!-- Весь код ниже. ОБЯЗАТЕЛЬНО: type="text/babel" и data-presets="react" -->
     <script type="text/babel" data-presets="react">
-      const { useState } = React;
-      // ← ГЛАВНОЕ ИСПРАВЛЕНИЕ: берем API из window.Motion
-      const { motion, useScroll, useTransform } = window.Motion;
+      const { useEffect } = React;
+
+      // Простая анимация появления при скролле (без framer-motion)
+      function useReveal(){
+        useEffect(()=>{
+          const els = document.querySelectorAll('.reveal');
+          const io = new IntersectionObserver(entries=>{
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('show'); });
+          }, {threshold: 0.1});
+          els.forEach(el => io.observe(el));
+          return () => io.disconnect();
+        },[]);
+      }
 
       const Icon = ({path,className}) => (
         <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d={path}/></svg>
@@ -54,9 +64,7 @@
       const Clock    = (p)=> <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>;
 
       function App(){
-        const [activeSection, setActiveSection] = useState('home');
-        const { scrollYProgress } = useScroll();
-        useTransform(scrollYProgress, [0, 0.2], [1, 0]);
+        useReveal();
 
         const products = [
           { id:1, name:'Визитки',            image:'https://placehold.co/300x200/e0e7ff/4c1d95?text=Визитки', category:'Печать' },
@@ -87,7 +95,6 @@
         ];
 
         const scrollToSection = id => {
-          setActiveSection(id);
           document.getElementById(id)?.scrollIntoView({ behavior:'smooth' });
         };
 
@@ -112,18 +119,19 @@
 
             <section id="home" className="pt-16 min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-green-50">
               <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                <motion.h1 className="text-5xl md:text-7xl font-bold text-purple-900 mb-6" initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{duration:0.6}}>Типография №1</motion.h1>
-                <motion.p className="text-xl md:text-2xl text-gray-700 mb-12 max-w-3xl mx-auto" initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{duration:0.6,delay:0.2}}>
+                <h1 className="reveal text-5xl md:text-7xl font-bold text-purple-900 mb-6">Типография №1</h1>
+                <p className="reveal text-xl md:text-2xl text-gray-700 mb-12 max-w-3xl mx-auto">
                   Печать и мерч при учебном заведении. Для студентов, сотрудников и мероприятий
-                </motion.p>
-                <motion.div className="flex flex-col sm:flex-row gap-4 justify-center" initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{duration:0.6,delay:0.4}}>
-                  <button onClick={() => scrollToSection('catalog')} className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-xl text-lg font-semibold transition-colors flex items-center justify-center gap-2">
+                </p>
+                <div className="reveal flex flex-col sm:flex-row gap-4 justify-center">
+                  <button onClick={() => scrollToSection('catalog')}
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-xl text-lg font-semibold transition-colors flex items-center justify-center gap-2">
                     Каталог <ChevronRight className="w-5 h-5" />
                   </button>
                   <button className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 rounded-xl text-lg font-semibold transition-colors flex items-center justify-center gap-2">
                     Загрузить макет <Upload className="w-5 h-5" />
                   </button>
-                </motion.div>
+                </div>
               </div>
             </section>
 
@@ -132,12 +140,11 @@
                 <h2 className="text-4xl font-bold text-purple-900 text-center mb-16">Наш ассортимент</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                   {products.map((p,i)=>(
-                    <motion.div key={p.id} className="bg-gray-50 rounded-2xl p-6 text-center hover:shadow-lg transition-shadow"
-                      initial={{opacity:0,y:30}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{duration:0.5,delay:i*0.1}}>
+                    <div key={p.id} className="reveal bg-gray-50 rounded-2xl p-6 text-center hover:shadow-lg transition-shadow">
                       <img src={p.image} alt={p.name} className="w-full h-48 object-cover rounded-xl mb-4" />
                       <h3 className="text-xl font-semibold text-purple-900 mb-2">{p.name}</h3>
                       <p className="text-gray-600">{p.category}</p>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -151,13 +158,13 @@
                 </div>
                 <div className="grid md:grid-cols-2 gap-12 items-center">
                   <div className="space-y-6">
-                    <div className="flex items-start gap-4"><div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0"><span className="text-white font-bold text-lg">1</span></div><div><h3 className="text-xl font-semibold text-purple-900 mb-2">Выберите товар</h3><p className="text-gray-600">Из нашего каталога или загрузите свой макет</p></div></div>
-                    <div className="flex items-start gap-4"><div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0"><span className="text-white font-bold text-lg">2</span></div><div><h3 className="text-xl font-semibold text-purple-900 mb-2">Создайте макет</h3><p className="text-gray-600">Онлайн-конструктор или готовый файл</p></div></div>
-                    <div className="flex items-start gap-4"><div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0"><span className="text-white font-bold text-lg">3</span></div><div><h3 className="text-xl font-semibold text-purple-900 mb-2">Оформите заказ</h3><p className="text-gray-600">Доставка и оплата — как удобно</p></div></div>
+                    <div className="reveal flex items-start gap-4"><div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0"><span className="text-white font-bold text-lg">1</span></div><div><h3 className="text-xl font-semibold text-purple-900 mb-2">Выберите товар</h3><p className="text-gray-600">Из нашего каталога или загрузите свой макет</p></div></div>
+                    <div className="reveal flex items-start gap-4"><div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0"><span className="text-white font-bold text-lg">2</span></div><div><h3 className="text-xl font-semibold text-purple-900 mb-2">Создайте макет</h3><p className="text-gray-600">Онлайн-конструктор или готовый файл</p></div></div>
+                    <div className="reveal flex items-start gap-4"><div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0"><span className="text-white font-bold text-lg">3</span></div><div><h3 className="text-xl font-semibold text-purple-900 mb-2">Оформите заказ</h3><p className="text-gray-600">Доставка и оплата — как удобно</p></div></div>
                   </div>
                   <div className="space-y-6">
-                    <div className="bg-white rounded-2xl p-4 shadow-lg"><img src="https://placehold.co/500x300/f3e8ff/6d28d9?text=Конструктор+1" className="w-full rounded-xl" /><p className="text-center text-gray-600 mt-2">Онлайн-конструктор для футболок</p></div>
-                    <div className="bg-white rounded-2xl p-4 shadow-lg"><img src="https://placehold.co/500x300/f3e8ff/6d28d9?text=Конструктор+2" className="w-full rounded-xl" /><p className="text-center text-gray-600 mt-2">Интерфейс загрузки макетов</p></div>
+                    <div className="reveal bg-white rounded-2xl p-4 shadow-lg"><img src="https://placehold.co/500x300/f3e8ff/6d28d9?text=Конструктор+1" className="w-full rounded-xl" /><p className="text-center text-gray-600 mt-2">Онлайн-конструктор для футболок</p></div>
+                    <div className="reveal bg-white rounded-2xl p-4 shadow-lg"><img src="https://placehold.co/500x300/f3e8ff/6d28d9?text=Конструктор+2" className="w-full rounded-xl" /><p className="text-center text-gray-600 mt-2">Интерфейс загрузки макетов</p></div>
                   </div>
                 </div>
               </div>
@@ -165,9 +172,9 @@
 
             <section className="py-20 bg-white">
               <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                <h2 className="text-4xl font-bold text-purple-900 mb-8">Часть учебного заведения</h2>
-                <p className="text-xl text-gray-700 mb-8">Типография №1 — внутреннее подразделение. Обеспечиваем учебный процесс и официальные мероприятия.</p>
-                <p className="text-lg text-gray-600">Мы понимаем потребности студентов и сотрудников, потому что сами часть академического сообщества.</p>
+                <h2 className="reveal text-4xl font-bold text-purple-900 mb-8">Часть учебного заведения</h2>
+                <p className="reveal text-xl text-gray-700 mb-8">Типография №1 — внутреннее подразделение. Обеспечиваем учебный процесс и официальные мероприятия.</p>
+                <p className="reveal text-lg text-gray-600">Мы понимаем потребности студентов и сотрудников, потому что сами часть академического сообщества.</p>
               </div>
             </section>
 
@@ -175,11 +182,8 @@
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <h2 className="text-4xl font-bold text-purple-900 text-center mb-16">Каталог продукции</h2>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {[
-                    ...catalogItems
-                  ].map((item,i)=>(
-                    <motion.div key={item.name} className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow"
-                      initial={{opacity:0,y:30}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{duration:0.5,delay:i*0.1}}>
+                  {catalogItems.map((item,i)=>(
+                    <div key={item.name} className="reveal bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
                       <img src={item.image} alt={item.name} className="w-full h-64 object-cover" />
                       <div className="p-6">
                         <h3 className="text-2xl font-bold text-purple-900 mb-4">{item.name}</h3>
@@ -189,11 +193,15 @@
                           <p><span className="font-semibold">Цена:</span> {item.price}</p>
                         </div>
                         <div className="flex gap-3">
-                          <button className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">В конструктор <Eye className="w-4 h-4" /></button>
-                          <button className="flex-1 bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">Загрузить файл <Upload className="w-4 h-4" /></button>
+                          <button className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
+                            В конструктор <Eye className="w-4 h-4" />
+                          </button>
+                          <button className="flex-1 bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
+                            Загрузить файл <Upload className="w-4 h-4" />
+                          </button>
                         </div>
                       </div>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -209,8 +217,7 @@
                     { name:'Набор первокурсника', items:['Футболка','Чехол','Кружка','Стикерпак','Значок'] },
                     { name:'Подарочные комплекты', items:['Кружка премиум','Футболка','Сертификат','Упаковка','Открытка'] },
                   ].map((set,i)=>(
-                    <motion.div key={i} className="bg-purple-50 rounded-2xl p-6 hover:bg-purple-100 transition-colors"
-                      initial={{opacity:0,y:30}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{duration:0.5,delay:i*0.1}}>
+                    <div key={i} className="reveal bg-purple-50 rounded-2xl p-6 hover:bg-purple-100 transition-colors">
                       <h3 className="text-xl font-bold text-purple-900 mb-4">{set.name}</h3>
                       <ul className="space-y-2 text-gray-700">
                         {set.items.map((it,idx)=>(
@@ -218,8 +225,15 @@
                         ))}
                       </ul>
                       <button className="mt-6 w-full bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-lg transition-colors">Заказать набор</button>
-                    </motion.div>
+                    </div>
                   ))}
+                </div>
+                <div className="reveal mt-16 bg-gradient-to-r from-purple-100 to-green-100 rounded-2xl p-8 text-center">
+                  <h3 className="text-2xl font-bold text-purple-900 mb-4">Технические требования и шаблоны</h3>
+                  <p className="text-gray-700 mb-6">Все файлы для подготовки макетов: форматы, разрешения, цветовые профили</p>
+                  <button className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition-colors inline-flex items-center gap-2">
+                    Скачать шаблоны <Download className="w-5 h-5" />
+                  </button>
                 </div>
               </div>
             </section>
@@ -235,10 +249,10 @@
                   <div>
                     <h4 className="text-lg font-semibold mb-4">Контакты</h4>
                     <div className="space-y-3 text-purple-200">
-                      <div className="flex items-center gap-3"><MapPin className="w-5 h-5" /><span>Учебный корпус А, кабинет 101</span></div>
-                      <div className="flex items-center gap-3"><Clock  className="w-5 h-5" /><span>Пн-Пт: 9:00–18:00</span></div>
-                      <div className="flex items-center gap-3"><Phone  className="w-5 h-5" /><span>+7 (495) 123-45-67</span></div>
-                      <div className="flex items-center gap-3"><Mail   className="w-5 h-5" /><span>print@university.edu</span></div>
+                      <div className="flex items-center gap-3"><span className="inline-block w-5"><MapPin className="w-5 h-5" /></span><span>Учебный корпус А, кабинет 101</span></div>
+                      <div className="flex items-center gap-3"><span className="inline-block w-5"><Clock  className="w-5 h-5" /></span><span>Пн–Пт: 9:00–18:00</span></div>
+                      <div className="flex items-center gap-3"><span className="inline-block w-5"><Phone  className="w-5 h-5" /></span><span>+7 (495) 123-45-67</span></div>
+                      <div className="flex items-center gap-3"><span className="inline-block w-5"><Mail   className="w-5 h-5" /></span><span>print@university.edu</span></div>
                     </div>
                   </div>
                   <div>
@@ -262,4 +276,3 @@
     </script>
   </body>
 </html>
-
