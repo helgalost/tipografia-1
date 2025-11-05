@@ -4,8 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Типография №1</title>
-
-    <!-- Tailwind (CDN) с лёгкой настройкой оттенков -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -19,15 +17,9 @@
         }
       }
     </script>
-
-    <!-- React 18 + ReactDOM (UMD) -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-
-    <!-- Framer Motion (UMD) -->
     <script src="https://unpkg.com/framer-motion/dist/framer-motion.umd.js"></script>
-
-    <!-- Babel для JSX в браузере -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
@@ -93,7 +85,7 @@
       function App(){
         const [activeSection, setActiveSection] = useState('home');
         const { scrollYProgress } = useScroll();
-        useTransform(scrollYProgress, [0, 0.2], [1, 0]); // оставил на будущее, если захочешь играться с opacity
+        useTransform(scrollYProgress, [0, 0.2], [1, 0]); 
 
         const products = [
           { id: 1, name: 'Визитки', image: 'https://placehold.co/300x200/e0e7ff/4c1d95?text=Визитки', category: 'Печать' },
@@ -361,7 +353,7 @@
                   </div>
                 </div>
                 <div className="border-t border-purple-800 mt-8 pt-8 text-center text-purple-300 text-sm">
-                  © 2024 Типография №1. Все права защищены.
+                  © 2025 Типография №1. Все права защищены.
                 </div>
               </div>
             </footer>
@@ -373,3 +365,4 @@
     </script>
   </body>
 </html>
+
